@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "agentTypeId": "charlotteledoux",
+  "name": "talk-with-charlotte",
+  "description": "Open Charlotte Ledoux's official Calendly booking page.",
+  "action": {
+    "type": "open_external_url",
+    "url": "https://calendly.com/charlotteledoux-pro/30min-meeting",
+    "target": "_blank",
+    "features": "noopener,noreferrer"
+  }
+}

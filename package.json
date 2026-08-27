@@ -1,0 +1,29 @@
+{
+  "name": "@seneca/agent-charlotteledoux",
+  "private": true,
+  "version": "1.2.2",
+  "type": "module",
+  "scripts": {
+    "validate": "node scripts/validate.mjs",
+    "test": "node --test",
+    "check": "npm run validate && npm test"
+  },
+  "boring": {
+    "agent": {
+      "definitionId": "charlotteledoux",
+      "version": "1.2.2",
+      "label": "Charlotte Ledoux",
+      "description": "Data & AI Governance knowledge agent grounded in Charlotte Ledoux's public writing.",
+      "instructionsRef": "instructions.md"
+    }
+  },
+  "seneca": {
+    "skills": [
+      "skills/wiki-editorial/SKILL.md"
+    ],
+    "commands": [
+      "commands/talk-with-charlotte.json"
+    ],
+    "knowledgeRoot": "knowledge"
+  }
+}

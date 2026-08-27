@@ -1,0 +1,24 @@
+# Chronology / evolution
+
+> AI-generated synthesis from Charlotte Ledoux's public writing. Not authored or endorsed by her. No paid templates are included.
+
+This page reads the corpus as a sequence of moves rather than a flat archive.
+
+## 2024: define the basics
+- The opening posts define governance in plain language, distinguish it from management, and keep the first scope small and understandable.
+- Strategy, ROI, sponsors, and role confusion quickly become central because the work must survive budget and org-chart reality.
+- Representative sources: [2024-03-18](../substack/2024-03-18-et-cest-quoi-la-data-gouvernance.md) ([public](https://thedatagovernanceplaybook.substack.com/p/et-cest-quoi-la-data-gouvernance)), [2024-03-31](../substack/2024-03-31-data-gouvernance-ou-data-management.md) ([public](https://thedatagovernanceplaybook.substack.com/p/data-gouvernance-ou-data-management)), [2024-04-14](../substack/2024-04-14-construire-son-plan-en-3-etapes.md) ([public](https://thedatagovernanceplaybook.substack.com/p/construire-son-plan-en-3-etapes)), [2024-06-30](../substack/2024-06-30-pitching-data-governance.md) ([public](https://thedatagovernanceplaybook.substack.com/p/pitching-data-governance)), [2024-08-22](../substack/2024-08-22-the-big-confusion-in-data-governance.md) ([public](https://thedatagovernanceplaybook.substack.com/p/the-big-confusion-in-data-governance)), [2024-11-07](../substack/2024-11-07-5-ideas-to-get-data-governance-sponsors.md) ([public](https://thedatagovernanceplaybook.substack.com/p/5-ideas-to-get-data-governance-sponsors)).
+
+## 2025: move into operating model
+- The writing turns from definition to execution: domains, stewards, playbooks, business cases, and practical quality routines.
+- The corpus leans hard into reusable artifacts and visible wins rather than abstract governance rhetoric.
+- Representative sources: [2025-01-23](../substack/2025-01-23-from-business-strategy-to-data-governance.md) ([public](https://thedatagovernanceplaybook.substack.com/p/from-business-strategy-to-data-governance)), [2025-02-13](../substack/2025-02-13-blueprint-for-a-scalable-data-governance.md) ([public](https://thedatagovernanceplaybook.substack.com/p/blueprint-for-a-scalable-data-governance)), [2025-04-29](../substack/2025-04-29-how-to-turn-data-quality-into-business.md) ([public](https://thedatagovernanceplaybook.substack.com/p/how-to-turn-data-quality-into-business)), [2025-06-12](../substack/2025-06-12-the-data-domains-map-enigma.md) ([public](https://thedatagovernanceplaybook.substack.com/p/the-data-domains-map-enigma)), [2025-06-26](../substack/2025-06-26-the-one-playbook-every-c-level-asks.md) ([public](https://thedatagovernanceplaybook.substack.com/p/the-one-playbook-every-c-level-asks)), [2025-07-10](../substack/2025-07-10-the-invisible-layer-of-data-governance.md) ([public](https://thedatagovernanceplaybook.substack.com/p/the-invisible-layer-of-data-governance)), [2025-11-27](../substack/2025-11-27-onboarding-your-data-stewards.md) ([public](https://thedatagovernanceplaybook.substack.com/p/onboarding-your-data-stewards)).
+
+## 2026: shift to context and agents
+- The latest posts recast governance around design-time controls, catalogs that actually get used, semantic layers, and context stacks for AI agents.
+- AI governance becomes a direct extension of the data work instead of a separate theme.
+- Representative sources: [2026-02-12](../substack/2026-02-12-why-data-catalogs-die-and-how-to.md) ([public](https://thedatagovernanceplaybook.substack.com/p/why-data-catalogs-die-and-how-to)), [2026-02-26](../substack/2026-02-26-the-governance-by-design-starter.md) ([public](https://thedatagovernanceplaybook.substack.com/p/the-governance-by-design-starter)), [2026-04-30](../substack/2026-04-30-semantic-layer-vs-data-catalog-why.md) ([public](https://thedatagovernanceplaybook.substack.com/p/semantic-layer-vs-data-catalog-why)), [2026-05-21](../substack/2026-05-21-the-data-quality-maturity-toolkit.md) ([public](https://thedatagovernanceplaybook.substack.com/p/the-data-quality-maturity-toolkit)), [2026-06-02](../substack/2026-06-02-data-governance-has-a-new-job.md) ([public](https://thedatagovernanceplaybook.substack.com/p/data-governance-has-a-new-job)), [2026-07-09](../substack/2026-07-09-your-data-stewards-waste-30-of-their.md) ([public](https://thedatagovernanceplaybook.substack.com/p/your-data-stewards-waste-30-of-their)), [2026-08-20](../substack/2026-08-20-the-state-of-data-governance-2026.md) ([public](https://thedatagovernanceplaybook.substack.com/p/the-state-of-data-governance-2026)).
+
+## Synthesis / inference
+- The arc is cumulative, not contradictory: the later pieces add context and execution to the earlier framing.
+- The public material shows a steady move from documents to operating behavior to machine-readable context.

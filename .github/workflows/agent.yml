@@ -1,0 +1,86 @@
+name: Validate and publish Charlotte agent
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: charlotteledoux-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate agent definition
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm run check
+
+  publish:
+    name: Publish immutable agent bundle
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build deterministic bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist/bundle
+          cp -a agent.json instructions.md package.json knowledge skills commands evals dist/bundle/
+          cat > dist/bundle/release.json <<JSON
+          {
+            "schemaVersion": 1,
+            "agentTypeId": "charlotteledoux",
+            "repository": "${GITHUB_REPOSITORY}",
+            "commit": "${GITHUB_SHA}"
+          }
+          JSON
+          tar \
+            --directory=dist/bundle \
+            --sort=name \
+            --mtime='UTC 1970-01-01' \
+            --owner=0 \
+            --group=0 \
+            --numeric-owner \
+            --format=posix \
+            -cf - . | gzip -n > dist/charlotteledoux-agent.tar.gz
+          (cd dist && sha256sum charlotteledoux-agent.tar.gz > charlotteledoux-agent.tar.gz.sha256)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: charlotteledoux-agent-${{ github.sha }}
+          path: |
+            dist/charlotteledoux-agent.tar.gz
+            dist/charlotteledoux-agent.tar.gz.sha256
+          if-no-files-found: error
+          retention-days: 90
+      - name: Publish immutable GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="agent-${GITHUB_SHA:0:12}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" \
+              dist/charlotteledoux-agent.tar.gz \
+              dist/charlotteledoux-agent.tar.gz.sha256 \
+              --clobber
+          else
+            gh release create "$tag" \
+              --target "$GITHUB_SHA" \
+              --title "Charlotte agent ${GITHUB_SHA:0:12}" \
+              --notes "Immutable charlotteledoux agent bundle for commit ${GITHUB_SHA}. Production activation is performed and verified separately by Seneca." \
+              dist/charlotteledoux-agent.tar.gz \
+              dist/charlotteledoux-agent.tar.gz.sha256
+          fi
