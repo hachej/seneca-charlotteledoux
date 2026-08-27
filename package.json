@@ -6,7 +6,8 @@
   "scripts": {
     "validate": "node scripts/validate.mjs",
     "test": "node --test",
-    "check": "npm run validate && npm test"
+    "check": "npm run validate && npm test",
+    "playground": "npx @hachej/boring-ui-cli ."
   },
   "pi": {
     "skills": [

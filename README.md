@@ -12,6 +12,38 @@ This repository contains the complete editorial agent definition:
 
 The agent is independent software. It is not Charlotte Ledoux, does not speak on her behalf, and is not affiliated with or endorsed by her.
 
+## Test Charlotte now
+
+This is the quickest way to review the agent. It runs only on the local machine:
+there is **no Seneca account, Docker, database, deployment, or `.env` file**.
+
+```bash
+# From this repository
+ANTHROPIC_API_KEY=your_key npx @hachej/boring-ui-cli .
+```
+
+Open **http://127.0.0.1:5200**, chat with Charlotte, and press `Ctrl+C` when
+done. `npm run playground` is the same command if your Claude provider is
+already configured.
+
+If there is no `ANTHROPIC_API_KEY`, run `pi` (or
+`npx @earendil-works/pi-coding-agent`) once and use `/login`; refresh the
+browser after signing in. The API key is not saved by this repository.
+
+### What the playground contains
+
+- Charlotte's full public-source prompt and editorial skills;
+- an offline, human-reviewable knowledge wiki in [`knowledge/wiki/`](knowledge/wiki/);
+- the attributed public Substack source corpus in [`knowledge/substack/`](knowledge/substack/).
+
+The agent uses the wiki to navigate a topic, then checks the raw public articles
+for exact wording, dates and source URLs. The corpus excludes paid templates,
+the lead-gated ebook and non-public posts. It is not Charlotte's private
+workspace, a vector database, or an endorsement by Charlotte.
+
+For a production-shaped Seneca integration test, see
+[`docs/BORING-UI-PLAYGROUND.md`](docs/BORING-UI-PLAYGROUND.md).
+
 ## Editorial loop
 
 ```bash
