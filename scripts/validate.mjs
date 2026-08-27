@@ -66,13 +66,13 @@ const command = await json(commandPaths[0])
 if (command.schemaVersion !== 1 || command.agentTypeId !== requiredDefinitionId || command.name !== 'talk-with-charlotte') {
   fail('Invalid talk-with-charlotte command identity')
 }
-if (command.action?.type !== 'open_external_url' || command.action.url !== allowedCalendlyUrl) {
-  fail('talk-with-charlotte must open Charlotte’s verified official Calendly URL')
+if (command.action?.type !== 'open_workspace_panel' || command.action.url !== allowedCalendlyUrl) {
+  fail('talk-with-charlotte must open Charlotte’s verified official Calendly URL in the workspace')
 }
 const bookingUrl = new URL(command.action.url)
 if (bookingUrl.protocol !== 'https:' || bookingUrl.hostname !== 'calendly.com') fail('Calendly command URL is not allowed')
-if (command.action.target !== '_blank' || command.action.features !== 'noopener,noreferrer') {
-  fail('External command must open a protected new tab')
+if (command.action.panelId !== 'charlotte-calendly' || command.action.title !== 'Talk with Charlotte') {
+  fail('Calendly command must use the approved Charlotte workspace panel')
 }
 
 const workflow = await readFile(resolve(root, '.github/workflows/agent.yml'), 'utf8')
@@ -99,4 +99,4 @@ for (const rawPath of rawFiles) {
 console.log(`✓ ${requiredDefinitionId} v${definition.version}`)
 console.log(`✓ ${rawFiles.length} raw public articles mapped`)
 console.log(`✓ ${manifest.seneca.skills.length} prompt-only skill(s) validated`)
-console.log(`✓ /talk-with-charlotte uses the verified protected Calendly destination`)
+console.log(`✓ /talk-with-charlotte uses the verified Calendly workspace panel`)
