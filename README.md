@@ -22,7 +22,7 @@ For complete local instructions, see [Test Charlotte in a Boring UI playground](
 
 Edit on a branch, inspect the pull-request checks, then merge into `main`. Every commit merged into `main` publishes an immutable agent bundle identified by the commit SHA and content digest.
 
-`main` is the production-intent branch. Seneca polls the private repository with a scoped read-only deploy key, verifies the exact commit and bundle, and activates it through the runtime release store; production never loads a moving branch directly.
+`main` is the production-intent branch. Successful creator validation immediately dispatches the exact commit to Seneca. Seneca then reads the private repository with a scoped read-only deploy key, verifies the commit and bundle, and activates it through the runtime release store; production never loads a moving branch directly. Five-minute polling is retained only as missed-dispatch recovery.
 
 ## Boundaries
 

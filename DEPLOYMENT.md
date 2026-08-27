@@ -29,8 +29,21 @@ The previous active digest remains selected if any check fails. A failed post-ac
 
 A creator release may change editorial content but cannot change Seneca's runtime policy envelope: tools, MCP servers, filesystem permissions, subscription enforcement, secrets, routing, infrastructure and the emergency kill switch remain Seneca-owned.
 
+## Dispatch credential
+
+`SENECA_AGENT_DISPATCH_TOKEN` is a fine-grained personal access token with:
+
+- repository access: **Only select repositories → `hachej/seneca`**;
+- repository permission: **Actions: Read and write**;
+- no Contents write, Administration, Secrets, or infrastructure permission;
+- the shortest practical expiration, followed by rotation.
+
+GitHub's Actions permission is repository-wide, not limited to one workflow. A collaborator who can change this repository's workflow can therefore use the token to invoke other manually dispatchable workflows in `hachej/seneca`. This is an explicit trust tradeoff for this private two-person repository; prefer a dedicated bot identity or narrow signed broker before adding more collaborators. Seneca still re-reads current creator `main`, treats its files only as non-executable data, validates the package independently in the trusted application image, and owns the production secrets and activation process.
+
 ## Current wiring
 
-This repository publishes immutable bundles on every merge to `main`. Seneca's `Activate Charlotte agent release` workflow polls this private repository every five minutes with a repository-scoped read-only deploy key, validates the current `main`, and activates it through the runtime release store without rebuilding the Seneca image.
+This repository publishes immutable bundles on every merge to `main`. As soon as the creator validation job succeeds, it requests Seneca's `Activate Charlotte agent release` workflow with the exact validated commit. The dispatch credential is stored as the `SENECA_AGENT_DISPATCH_TOKEN` Actions secret and is a fine-grained token scoped only to `hachej/seneca` with Actions read/write permission; it is not a VPS or production-runtime credential.
+
+Seneca independently reads the private creator repository through its repository-scoped read-only deploy key, rejects a requested commit when it is no longer the current `main`, validates the bundle again, and activates it through the runtime release store without rebuilding the Seneca image. Five-minute polling remains only as a recovery path for a missed dispatch.
 
 The initial implementation recreates the Seneca app container after an atomic pointer swap. Existing sessions are not yet definition-digest pinned; a resumed Charlotte session uses the newly active definition after restart. The workflow verifies health and the active compiled digest and restores the preceding pointer on failure.

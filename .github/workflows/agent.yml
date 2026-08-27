@@ -9,7 +9,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: charlotteledoux-${{ github.ref }}
+  # Preserve one immutable publication per main commit without making a newer
+  # validated push wait for an older GitHub release upload.
+  group: charlotteledoux-${{ github.sha }}
   cancel-in-progress: false
 
 jobs:
@@ -22,6 +24,25 @@ jobs:
         with:
           node-version: 24
       - run: npm run check
+
+  request-activation:
+    name: Request immediate Seneca activation
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch the exact validated commit
+        env:
+          GH_TOKEN: ${{ secrets.SENECA_AGENT_DISPATCH_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$GH_TOKEN"
+          gh workflow run sync-charlotte-agent.yml \
+            --repo hachej/seneca \
+            --ref main \
+            --field source_commit="$GITHUB_SHA"
+          echo "Requested Seneca activation for $GITHUB_SHA"
 
   publish:
     name: Publish immutable agent bundle
