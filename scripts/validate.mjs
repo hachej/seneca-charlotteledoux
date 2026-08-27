@@ -75,6 +75,19 @@ if (command.action.target !== '_blank' || command.action.features !== 'noopener,
   fail('External command must open a protected new tab')
 }
 
+const workflow = await readFile(resolve(root, '.github/workflows/agent.yml'), 'utf8')
+for (const required of [
+  'Request immediate Seneca activation',
+  'secrets.SENECA_AGENT_DISPATCH_TOKEN',
+  '--repo hachej/seneca',
+  '--field source_commit="$GITHUB_SHA"',
+]) {
+  if (!workflow.includes(required)) fail(`Creator workflow is missing safe activation dispatch: ${required}`)
+}
+for (const forbidden of ['VPS_SSH_KEY', 'VPS_HOST', 'TAILSCALE_AUTHKEY', 'CHARLOTTE_AGENT_DEPLOY_KEY']) {
+  if (workflow.includes(forbidden)) fail(`Creator workflow must not receive production or repository-read secret: ${forbidden}`)
+}
+
 const rawFiles = (await filesUnder('knowledge/substack')).filter((path) => path.endsWith('.md') && !path.endsWith('/INDEX.md'))
 if (rawFiles.length < 51) fail(`Expected at least 51 public raw articles, found ${rawFiles.length}`)
 const sourceMap = await readFile(resolve(root, 'knowledge/wiki/SOURCE-MAP.md'), 'utf8')
