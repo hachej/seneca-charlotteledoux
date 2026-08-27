@@ -7,14 +7,14 @@ const command = JSON.parse(await readFile(
   'utf8',
 ))
 
-test('/talk-with-charlotte is an addressed declarative browser command', () => {
+test('/talk-with-charlotte is an addressed declarative workspace command', () => {
   assert.equal(command.agentTypeId, 'charlotteledoux')
   assert.equal(command.name, 'talk-with-charlotte')
   assert.deepEqual(command.action, {
-    type: 'open_external_url',
+    type: 'open_workspace_panel',
     url: 'https://calendly.com/charlotteledoux-pro/30min-meeting',
-    target: '_blank',
-    features: 'noopener,noreferrer',
+    panelId: 'charlotte-calendly',
+    title: 'Talk with Charlotte',
   })
 })
 
