@@ -22,7 +22,7 @@ For complete local instructions, see [Test Charlotte in a Boring UI playground](
 
 Edit on a branch, inspect the pull-request checks, then merge into `main`. Every commit merged into `main` publishes an immutable agent bundle identified by the commit SHA and content digest.
 
-`main` is the production-intent branch. The Seneca deployment broker must verify and activate the published bundle; production never clones a moving branch.
+`main` is the production-intent branch. Seneca polls the private repository with a scoped read-only deploy key, verifies the exact commit and bundle, and activates it through the runtime release store; production never loads a moving branch directly.
 
 ## Boundaries
 
@@ -42,4 +42,4 @@ The URL was verified against the booking link published on https://charlotteledo
 
 ## Deployment
 
-See [`DEPLOYMENT.md`](DEPLOYMENT.md). Publishing a bundle is wired in this repository; Seneca production activation remains a separate, narrowly authorized deployment-broker responsibility.
+See [`DEPLOYMENT.md`](DEPLOYMENT.md). Publishing and narrowly authorized Seneca activation are wired; activation is reported separately from bundle publication and rolls back on failed validation, restart, health, or digest verification.

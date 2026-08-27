@@ -31,4 +31,6 @@ A creator release may change editorial content but cannot change Seneca's runtim
 
 ## Current wiring
 
-This repository publishes immutable bundles on every merge to `main`. Production activation must not be represented as active until the Seneca deployment broker has been implemented, configured and verified end-to-end.
+This repository publishes immutable bundles on every merge to `main`. Seneca's `Activate Charlotte agent release` workflow polls this private repository every five minutes with a repository-scoped read-only deploy key, validates the current `main`, and activates it through the runtime release store without rebuilding the Seneca image.
+
+The initial implementation recreates the Seneca app container after an atomic pointer swap. Existing sessions are not yet definition-digest pinned; a resumed Charlotte session uses the newly active definition after restart. The workflow verifies health and the active compiled digest and restores the preceding pointer on failure.
