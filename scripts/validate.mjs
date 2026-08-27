@@ -53,6 +53,10 @@ for (const skillPath of manifest.seneca?.skills ?? []) {
     fail(`Skill lacks required frontmatter: ${skillPath}`)
   }
 }
+const expectedPiSkills = (manifest.seneca?.skills ?? []).map((skillPath) => skillPath.replace(/\/SKILL\.md$/, ''))
+if (JSON.stringify(manifest.pi?.skills ?? []) !== JSON.stringify(expectedPiSkills)) {
+  fail('package.json pi.skills must exactly match the creator skill inventory')
+}
 
 const commandPaths = manifest.seneca?.commands ?? []
 if (commandPaths.length !== 1 || commandPaths[0] !== 'commands/talk-with-charlotte.json') {

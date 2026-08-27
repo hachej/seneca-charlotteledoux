@@ -8,6 +8,11 @@
     "test": "node --test",
     "check": "npm run validate && npm test"
   },
+  "pi": {
+    "skills": [
+      "skills/wiki-editorial"
+    ]
+  },
   "boring": {
     "agent": {
       "definitionId": "charlotteledoux",

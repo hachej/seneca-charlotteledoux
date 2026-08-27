@@ -18,6 +18,8 @@ The agent is independent software. It is not Charlotte Ledoux, does not speak on
 npm run check
 ```
 
+For complete local instructions, see [Test Charlotte in a Boring UI playground](docs/BORING-UI-PLAYGROUND.md).
+
 Edit on a branch, inspect the pull-request checks, then merge into `main`. Every commit merged into `main` publishes an immutable agent bundle identified by the commit SHA and content digest.
 
 `main` is the production-intent branch. The Seneca deployment broker must verify and activate the published bundle; production never clones a moving branch.
