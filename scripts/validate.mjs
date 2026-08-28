@@ -4,6 +4,13 @@ import { resolve, relative } from 'node:path'
 const root = resolve(new URL('..', import.meta.url).pathname)
 const requiredDefinitionId = 'charlotteledoux'
 const allowedCalendlyUrl = 'https://calendly.com/charlotteledoux-pro/30min-meeting'
+const ignoredTopLevelDirectories = new Set([
+  '.boring',
+  '.boring-agent',
+  '.git',
+  '.worktrees',
+  'node_modules',
+])
 
 function fail(message) {
   throw new Error(message)
@@ -18,6 +25,8 @@ async function filesUnder(path) {
   const result = []
   async function walk(current) {
     for (const entry of await readdir(current, { withFileTypes: true })) {
+      if (entry.isDirectory() && entry.name === 'node_modules') continue
+      if (current === root && entry.isDirectory() && ignoredTopLevelDirectories.has(entry.name)) continue
       const absolute = resolve(current, entry.name)
       const stat = await lstat(absolute)
       if (stat.isSymbolicLink()) fail(`Symlinks are forbidden: ${relative(root, absolute)}`)
@@ -59,8 +68,12 @@ if (JSON.stringify(manifest.pi?.skills ?? []) !== JSON.stringify(expectedPiSkill
 }
 
 const commandPaths = manifest.seneca?.commands ?? []
+const boringCommandPaths = manifest.boring?.agentCommandManifests ?? []
 if (commandPaths.length !== 1 || commandPaths[0] !== 'commands/talk-with-charlotte.json') {
   fail('The declarative command inventory must contain talk-with-charlotte')
+}
+if (JSON.stringify(boringCommandPaths) !== JSON.stringify(commandPaths)) {
+  fail('boring.agentCommandManifests must exactly match seneca.commands during migration')
 }
 const command = await json(commandPaths[0])
 if (command.schemaVersion !== 1 || command.agentTypeId !== requiredDefinitionId || command.name !== 'talk-with-charlotte') {

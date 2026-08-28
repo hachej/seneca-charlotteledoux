@@ -7,7 +7,8 @@
     "validate": "node scripts/validate.mjs",
     "test": "node --test",
     "check": "npm run validate && npm test",
-    "playground": "npx @hachej/boring-ui-cli ."
+    "playground": "npx @hachej/boring-ui-cli .",
+    "verify:playground-command": "node scripts/verify-playground-command.mjs"
   },
   "pi": {
     "skills": [
@@ -21,7 +22,10 @@
       "label": "Charlotte Ledoux",
       "description": "Data & AI Governance knowledge agent grounded in Charlotte Ledoux's public writing.",
       "instructionsRef": "instructions.md"
-    }
+    },
+    "agentCommandManifests": [
+      "commands/talk-with-charlotte.json"
+    ]
   },
   "seneca": {
     "skills": [

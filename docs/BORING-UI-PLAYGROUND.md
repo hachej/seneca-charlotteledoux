@@ -38,7 +38,8 @@ Open the local URL printed by the dev server, select **Charlotte Ledoux**, creat
 - the file picker lists every workspace-visible filesystem;
 - `charlotteledoux` is read-only and `user` remains writable;
 - answers read the relevant raw `substack/` article before claiming success;
-- `/talk-with-charlotte` opens the verified Calendly destination once the declarative-command loader is present in the Seneca checkout.
+- `/talk-with-charlotte` appears only for `agentTypeId=charlotteledoux` and opens the verified Calendly destination once the generic addressed declarative-command loader is present in the Seneca checkout;
+- requesting or executing `talk-with-charlotte` against any other agent is rejected.
 
 Never use production Stripe, database, Blaxel, mail or deployment credentials locally.
 
@@ -88,7 +89,28 @@ export BORING_AGENT_WORKSPACE_ROOT="$PWD"
 pnpm --filter workspace-playground dev:multiagent
 ```
 
-Open `http://localhost:5200`, select `charlotteledoux`, and test chat, knowledge reads, wiki drafting and `!wiki-editorial`/skill discovery. The bare playground currently does not consume Seneca's declarative browser-command manifest, so test `/talk-with-charlotte` in the production-shaped loop after that generic loader lands.
+Open `http://localhost:5200`, select `charlotteledoux`, and test chat, knowledge reads, wiki drafting and `!wiki-editorial`/skill discovery.
+
+The creator repository declares its command once in
+`commands/talk-with-charlotte.json`. Both `boring.agentCommandManifests` and the
+transitional `seneca.commands` inventory point to that same file. The command
+remains inert unless the addressed host activates `charlotteledoux`, loads that
+manifest into that agent's command set, and enforces the same identity during
+execution.
+
+After starting a host that implements that generic contract, verify discovery,
+execution, the exact browser effect, and cross-agent denial from this repository:
+
+```bash
+BORING_UI_URL=http://127.0.0.1:5200 npm run verify:playground-command
+```
+
+Use a Boring UI CLI build that supports addressed declarative commands. Folder
+mode activates this authored root as `charlotteledoux`, loads only its package
+Pi resources, exposes the writable `user` filesystem plus its readonly
+`agent_knowledge` filesystem, and serves `/talk-with-charlotte` only on the
+Charlotte command route. The verifier fails closed on older CLI builds; never
+bypass it by registering a global Pi command.
 
 Remove the disposable worktree when finished:
 
