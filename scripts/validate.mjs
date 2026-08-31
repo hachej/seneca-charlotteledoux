@@ -38,13 +38,10 @@ async function filesUnder(path) {
   return result.sort()
 }
 
-const definition = await json('agent.json')
 const manifest = await json('package.json')
-if (definition.definitionId !== requiredDefinitionId) fail('agent.json definitionId must be charlotteledoux')
-if (manifest.boring?.agent?.definitionId !== requiredDefinitionId) fail('package.json definitionId must be charlotteledoux')
-if (definition.version !== manifest.version || definition.version !== manifest.boring?.agent?.version) {
-  fail('agent.json and package.json versions must match')
-}
+const definition = manifest.boring?.agent
+if (definition?.definitionId !== requiredDefinitionId) fail('package.json definitionId must be charlotteledoux')
+if (definition.version !== manifest.version) fail('package.json agent and package versions must match')
 if (definition.instructionsRef !== 'instructions.md') fail('instructionsRef must remain instructions.md')
 
 const instructions = await readFile(resolve(root, 'instructions.md'), 'utf8')

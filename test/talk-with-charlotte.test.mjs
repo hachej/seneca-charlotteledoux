@@ -6,8 +6,8 @@ async function readJson(relativePath) {
   return JSON.parse(await readFile(new URL(`../${relativePath}`, import.meta.url), 'utf8'))
 }
 
-const definition = await readJson('agent.json')
 const manifest = await readJson('package.json')
+const definition = manifest.boring.agent
 const commandPath = 'commands/talk-with-charlotte.json'
 const command = await readJson(commandPath)
 

@@ -4,7 +4,7 @@ Private, creator-controlled source repository for the `charlotteledoux` Seneca a
 
 This repository contains the complete editorial agent definition:
 
-- `agent.json` and `instructions.md` — identity and operating instructions;
+- `package.json` (`boring.agent`) and `instructions.md` — identity and operating instructions;
 - `skills/` — prompt-only skills Charlotte can edit;
 - `knowledge/` — attributed public-source corpus and compiled wiki;
 - `commands/` — declarative browser commands;
