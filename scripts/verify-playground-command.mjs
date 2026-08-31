@@ -1,11 +1,7 @@
 import assert from 'node:assert/strict'
-import { readFile } from 'node:fs/promises'
 import { randomUUID } from 'node:crypto'
 
-const command = JSON.parse(await readFile(
-  new URL('../commands/talk-with-charlotte.json', import.meta.url),
-  'utf8',
-))
+const command = { agentTypeId: 'charlotteledoux', name: 'talk-with-charlotte' }
 const baseUrl = new URL(process.env.BORING_UI_URL ?? 'http://127.0.0.1:5200')
 const requestId = `charlotte-command-smoke-${randomUUID()}`
 const addressedBase = `/api/v1/agents/${encodeURIComponent(command.agentTypeId)}`
@@ -49,44 +45,28 @@ try {
   const sharedFilesystems = await request('/api/v1/filesystems')
   if (!sharedFilesystems.response.ok) blocker('Could not read the shared workspace filesystem catalog.', sharedFilesystems.body)
   assert.ok(sharedFilesystems.body.filesystems.some((entry) => entry.filesystem === 'user' && entry.access === 'readwrite'))
-  assert.ok(!sharedFilesystems.body.filesystems.some((entry) => entry.filesystem === 'agent_knowledge'))
+  assert.ok(sharedFilesystems.body.filesystems.some((entry) => (
+    entry.filesystem === 'agent_knowledge:charlotteledoux'
+    && entry.label === 'Charlotte Ledoux'
+    && entry.access === 'readonly'
+  )))
+  const humanKnowledge = await request('/api/v1/files?filesystem=agent_knowledge%3Acharlotteledoux&path=wiki%2FINDEX.md')
+  if (!humanKnowledge.response.ok) blocker('The human workspace could not read Charlotte knowledge.', humanKnowledge.body)
 
-  const filesystems = await request(`${addressedBase}/filesystems`)
-  if (!filesystems.response.ok) blocker('Could not read Charlotte-scoped filesystems.', filesystems.body)
-  const roots = filesystems.body?.filesystems ?? []
-  assert.ok(roots.some((entry) => entry.filesystem === 'user' && entry.access === 'readwrite'))
-  assert.ok(roots.some((entry) => entry.filesystem === 'agent_knowledge' && entry.label === 'Charlotte Ledoux' && entry.access === 'readonly'))
-  assert.ok(!roots.some((entry) => entry.filesystem === 'agent_resources'))
-  const wrongAgentCatalog = await request('/api/v1/agents/default/filesystems')
-  assert.equal(wrongAgentCatalog.response.status, 404, 'wrong Agent filesystem catalog must use canonical unknown-Agent denial')
-  assert.equal(wrongAgentCatalog.body?.error?.code, 'AGENT_TYPE_UNKNOWN')
+  assert.match(humanKnowledge.body.content, /Charlotte|Governance|Wiki/i)
+  assert.equal(humanKnowledge.body.access, 'readonly')
 
-  const knowledgeTree = await request(`${addressedBase}/tree?filesystem=agent_knowledge&path=/`)
-  if (!knowledgeTree.response.ok) blocker('Could not list Charlotte knowledge through the addressed tree route.', knowledgeTree.body)
-  assert.ok(knowledgeTree.body.entries.some(({ path }) => path === 'wiki/INDEX.md' || path === 'wiki'))
-  const knowledgeRead = await request(`${addressedBase}/files?filesystem=agent_knowledge&path=wiki%2FINDEX.md`)
-  if (!knowledgeRead.response.ok) blocker('Could not read Charlotte public knowledge through the addressed file route.', knowledgeRead.body)
-  assert.match(knowledgeRead.body.content, /Charlotte|Governance|Wiki/i)
-  assert.equal(knowledgeRead.body.access, 'readonly')
-
-  const workspaceWrite = await request(`${addressedBase}/files`, {
+  const workspaceWrite = await request('/api/v1/files', {
     method: 'POST',
     body: JSON.stringify({ filesystem: 'user', path: smokePath, content: 'workspace write smoke' }),
   })
-  if (!workspaceWrite.response.ok) blocker('Writable addressed workspace smoke write failed.', workspaceWrite.body)
-  const knowledgeWrite = await request(`${addressedBase}/files`, {
+  if (!workspaceWrite.response.ok) blocker('Writable human workspace smoke write failed.', workspaceWrite.body)
+  const knowledgeWrite = await request('/api/v1/files', {
     method: 'POST',
-    body: JSON.stringify({ filesystem: 'agent_knowledge', path: 'should-not-write.txt', content: 'denied' }),
+    body: JSON.stringify({ filesystem: 'agent_knowledge:charlotteledoux', path: 'should-not-write.txt', content: 'denied' }),
   })
   assert.equal(knowledgeWrite.response.status, 403, 'Charlotte knowledge mutation must be rejected as readonly')
   assert.equal(knowledgeWrite.body?.error?.code, 'readonly')
-
-  const wrongAgentTree = await request('/api/v1/agents/default/tree?filesystem=agent_knowledge&path=/')
-  assert.equal(wrongAgentTree.response.status, 404, 'wrong Agent must not list Charlotte knowledge')
-  assert.equal(wrongAgentTree.body?.error?.code, 'AGENT_TYPE_UNKNOWN')
-  const wrongAgentRead = await request('/api/v1/agents/default/files?filesystem=agent_knowledge&path=wiki%2FINDEX.md')
-  assert.equal(wrongAgentRead.response.status, 404, 'wrong Agent must not read Charlotte knowledge')
-  assert.equal(wrongAgentRead.body?.error?.code, 'not_found_or_denied')
 
   const skills = await request(`/api/v1/agents/${encodeURIComponent(command.agentTypeId)}/skills`)
   if (!skills.response.ok) blocker('Could not list Charlotte-scoped skills.', skills.body)
@@ -106,8 +86,8 @@ try {
   )
   if (!listed.response.ok) blocker('Could not list addressed Charlotte commands.', listed.body)
   const discovered = listed.body.commands.find(({ name }) => name === command.name)
-  if (!discovered || discovered.source !== 'declarative') {
-    blocker('The addressed runtime did not expose /talk-with-charlotte as a declarative command.', listed.body)
+  if (!discovered || discovered.source !== 'extension') {
+    blocker('The addressed runtime did not expose /talk-with-charlotte through Charlotte’s Pi extension.', listed.body)
   }
   assert.ok(listed.body.commands.some(({ name, source }) => name === 'skill:wiki-editorial' && source === 'skill'))
   assert.ok((await request('/api/v1/agents/default/commands')).response.status >= 400)
@@ -117,7 +97,7 @@ try {
     body: JSON.stringify({ requestId: `${requestId}-execute`, sessionId, name: command.name, args: '' }),
   })
   if (!executed.response.ok) blocker('The addressed Charlotte command did not execute.', executed.body)
-  assert.deepEqual(executed.body.effect, command.action)
+  assert.deepEqual(executed.body, { ok: true, sessionId, name: command.name })
 
   const wrongAgent = await request('/api/v1/agents/default/commands/execute', {
     method: 'POST',
@@ -131,15 +111,15 @@ try {
   assert.ok(wrongAgentSkill.response.status >= 400, 'cross-agent skill invocation must fail')
 
   console.log('✓ Charlotte is the active authored agent')
-  console.log('✓ writable Workspace and readonly Charlotte Ledoux filesystems are addressed to Charlotte')
-  console.log('✓ addressed Charlotte knowledge tree and public file reads succeed')
-  console.log('✓ addressed workspace writes succeed and knowledge mutations fail as readonly')
+  console.log('✓ the human workspace sees Workspace and Charlotte Ledoux filesystems')
+  console.log('✓ Charlotte Ledoux knowledge reads succeed in the human workspace')
+  console.log('✓ workspace writes succeed and knowledge mutations fail as readonly')
   console.log('✓ wiki-editorial is discoverable only through Charlotte')
-  console.log('✓ /talk-with-charlotte is addressed and declarative')
-  console.log('✓ execution returns only the verified protected Calendly browser effect')
+  console.log('✓ /talk-with-charlotte is addressed through Charlotte’s existing Pi extension')
+  console.log('✓ execution uses the existing Boring UI panel bridge')
   console.log('✓ cross-agent execution is denied')
 } finally {
-  await request(`${addressedBase}/files?filesystem=user&path=${encodeURIComponent(smokePath)}`, { method: 'DELETE' }).catch(() => {})
+  await request(`/api/v1/files?filesystem=user&path=${encodeURIComponent(smokePath)}`, { method: 'DELETE' }).catch(() => {})
   if (sessionId) {
     await request(
       `/api/v1/agents/${encodeURIComponent(command.agentTypeId)}/sessions/${encodeURIComponent(sessionId)}?requestId=${encodeURIComponent(`${requestId}-cleanup`)}`,

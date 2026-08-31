@@ -44,6 +44,13 @@ if (definition?.definitionId !== requiredDefinitionId) fail('package.json defini
 if (definition.version !== manifest.version) fail('package.json agent and package versions must match')
 if (definition.instructionsRef !== 'instructions.md') fail('instructionsRef must remain instructions.md')
 
+// Seneca still consumes the A1 manifest during activation. package.json is
+// authoritative; reject the compatibility mirror if any identity field drifts.
+const compatibilityDefinition = await json('agent.json')
+for (const key of ['definitionId', 'version', 'label', 'description', 'instructionsRef']) {
+  if (compatibilityDefinition[key] !== definition[key]) fail(`agent.json compatibility field must match package.json: ${key}`)
+}
+
 const instructions = await readFile(resolve(root, 'instructions.md'), 'utf8')
 for (const disclosure of ['not Charlotte Ledoux herself', 'not affiliated with or endorsed by her', 'paid templates']) {
   if (!instructions.includes(disclosure)) fail(`instructions.md is missing disclosure: ${disclosure}`)
@@ -64,26 +71,20 @@ if (JSON.stringify(manifest.pi?.skills ?? []) !== JSON.stringify(expectedPiSkill
   fail('package.json pi.skills must exactly match the creator skill inventory')
 }
 
-const commandPaths = manifest.seneca?.commands ?? []
-const boringCommandPaths = manifest.boring?.agentCommandManifests ?? []
-if (commandPaths.length !== 1 || commandPaths[0] !== 'commands/talk-with-charlotte.json') {
-  fail('The declarative command inventory must contain talk-with-charlotte')
+if (manifest.boring?.front !== 'plugin/front/index.tsx') fail('Charlotte front plugin entry is missing')
+if (JSON.stringify(manifest.pi?.extensions ?? []) !== JSON.stringify(['plugin/agent/index.ts'])) {
+  fail('Charlotte Pi command extension entry is missing')
 }
-if (JSON.stringify(boringCommandPaths) !== JSON.stringify(commandPaths)) {
-  fail('boring.agentCommandManifests must exactly match seneca.commands during migration')
+const frontPlugin = await readFile(resolve(root, manifest.boring.front), 'utf8')
+const commandExtension = await readFile(resolve(root, manifest.pi.extensions[0]), 'utf8')
+for (const required of ['charlotteledoux.calendly', 'Talk with Charlotte', allowedCalendlyUrl, 'sandbox=', 'referrerPolicy="no-referrer"']) {
+  if (!frontPlugin.includes(required)) fail(`Charlotte front plugin is missing: ${required}`)
 }
-const command = await json(commandPaths[0])
-if (command.schemaVersion !== 1 || command.agentTypeId !== requiredDefinitionId || command.name !== 'talk-with-charlotte') {
-  fail('Invalid talk-with-charlotte command identity')
+for (const required of ['registerCommand(COMMAND_NAME', 'talk-with-charlotte', 'openPanel', 'charlotteledoux.calendly']) {
+  if (!commandExtension.includes(required)) fail(`Charlotte command extension is missing: ${required}`)
 }
-if (command.action?.type !== 'open_workspace_panel' || command.action.url !== allowedCalendlyUrl) {
-  fail('talk-with-charlotte must open Charlotte’s verified official Calendly URL in the workspace')
-}
-const bookingUrl = new URL(command.action.url)
+const bookingUrl = new URL(allowedCalendlyUrl)
 if (bookingUrl.protocol !== 'https:' || bookingUrl.hostname !== 'calendly.com') fail('Calendly command URL is not allowed')
-if (command.action.title !== 'Talk with Charlotte') {
-  fail('Calendly command must use the approved Charlotte workspace panel title')
-}
 
 const workflow = await readFile(resolve(root, '.github/workflows/agent.yml'), 'utf8')
 for (const required of [

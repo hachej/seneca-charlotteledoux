@@ -36,9 +36,9 @@ Open the local URL printed by the dev server, select **Charlotte Ledoux**, creat
 
 - selecting Charlotte does not replace the workspace or close the other pane;
 - the file picker lists every workspace-visible filesystem;
-- `charlotteledoux` is read-only and `user` remains writable;
+- the human can open **Charlotte Ledoux** read-only and **Workspace** writable roots;
 - answers read the relevant raw `substack/` article before claiming success;
-- `/talk-with-charlotte` appears only for `agentTypeId=charlotteledoux` and opens the verified Calendly destination once the generic addressed declarative-command loader is present in the Seneca checkout;
+- `/talk-with-charlotte` appears only for `agentTypeId=charlotteledoux` and opens the verified Calendly panel through Charlotte’s package plugin;
 - requesting or executing `talk-with-charlotte` against any other agent is rejected.
 
 Never use production Stripe, database, Blaxel, mail or deployment credentials locally.
@@ -91,26 +91,23 @@ pnpm --filter workspace-playground dev:multiagent
 
 Open `http://localhost:5200`, select `charlotteledoux`, and test chat, knowledge reads, wiki drafting and `!wiki-editorial`/skill discovery.
 
-The creator repository declares its command once in
-`commands/talk-with-charlotte.json`. Both `boring.agentCommandManifests` and the
-transitional `seneca.commands` inventory point to that same file. The command
-remains inert unless the addressed host activates `charlotteledoux`, loads that
-manifest into that agent's command set, and enforces the same identity during
-execution.
+The creator repository uses the existing plugin system: `plugin/agent/index.ts`
+registers `/talk-with-charlotte`, and `plugin/front/index.tsx` owns the Calendly
+panel. `package.json#pi.extensions` provisions the command only into the
+addressed Charlotte runtime; `package.json#boring.front` registers its panel.
 
-After starting a host that implements that generic contract, verify discovery,
-execution, the exact browser effect, and cross-agent denial from this repository:
+After starting the host, verify plugin discovery, execution, filesystem
+visibility and cross-agent denial from this repository:
 
 ```bash
 BORING_UI_URL=http://127.0.0.1:5200 npm run verify:playground-command
 ```
 
-Use a Boring UI CLI build that supports addressed declarative commands. Folder
-mode activates this authored root as `charlotteledoux`, loads only its package
-Pi resources, exposes the writable `user` filesystem plus its readonly
-`agent_knowledge` filesystem, and serves `/talk-with-charlotte` only on the
-Charlotte command route. The verifier fails closed on older CLI builds; never
-bypass it by registering a global Pi command.
+Folder mode activates this authored root as `charlotteledoux`, loads only its
+package Pi resources, shows the human both writable **Workspace** and readonly
+**Charlotte Ledoux** roots, and gives only Charlotte’s addressed runtime the
+canonical `agent_knowledge` binding. `/talk-with-charlotte` comes from the
+existing scoped Pi extension—not a global command or a new core command mode.
 
 Remove the disposable worktree when finished:
 

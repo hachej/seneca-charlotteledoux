@@ -16,8 +16,8 @@ The Seneca deployment broker must:
 1. authenticate the GitHub repository, workflow and actor;
 2. download the exact immutable release artifact;
 3. verify its SHA-256 digest;
-4. reject files outside the allowlisted definition, skills, knowledge, commands and evaluations paths;
-5. validate declarative commands and prevent executable creator code;
+4. reject files outside the allowlisted definition, skills, knowledge, plugin and evaluations paths;
+5. validate the package-scoped Boring UI/Pi plugin entries and their restricted browser target;
 6. compile and evaluate the `charlotteledoux` agent;
 7. stage and smoke-test the release;
 8. atomically select the new definition digest for new Charlotte sessions;

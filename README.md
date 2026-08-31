@@ -4,10 +4,11 @@ Private, creator-controlled source repository for the `charlotteledoux` Seneca a
 
 This repository contains the complete editorial agent definition:
 
-- `package.json` (`boring.agent`) and `instructions.md` — identity and operating instructions;
+- `package.json` (`boring.agent`) and `instructions.md` — canonical identity and operating instructions;
+- `agent.json` — Seneca A1 activation compatibility mirror, validated against `package.json`;
 - `skills/` — prompt-only skills Charlotte can edit;
 - `knowledge/` — attributed public-source corpus and compiled wiki;
-- `commands/` — declarative browser commands;
+- `plugin/` — Charlotte-owned Boring UI panel and Pi slash command;
 - `evals/` — creator-maintained evaluation cases.
 
 The agent is independent software. It is not Charlotte Ledoux, does not speak on her behalf, and is not affiliated with or endorsed by her.
@@ -66,14 +67,15 @@ Edit on a branch, inspect the pull-request checks, then merge into `main`. Every
 
 ## Talk with Charlotte
 
-The addressed declarative `/talk-with-charlotte` command opens Charlotte Ledoux's official public booking link in a new browser tab:
+The `/talk-with-charlotte` Pi extension command opens Charlotte Ledoux's official
+public booking page in a Charlotte-owned Boring UI panel:
 
 https://calendly.com/charlotteledoux-pro/30min-meeting
 
-The command belongs only to `agentTypeId=charlotteledoux`; another agent must
-neither discover nor execute it. The complete creator-specific action remains in
-`commands/talk-with-charlotte.json`, while hosts provide only generic manifest
-loading, agent scoping and protected browser-action handling.
+The command and panel use the existing plugin APIs under `plugin/`. The Pi
+extension is provisioned only into `agentTypeId=charlotteledoux`, so sibling
+agents neither discover nor execute it. Boring UI core contains no
+Charlotte-specific command mode, URL or identifier.
 
 The URL was verified against the booking link published on https://charlotteledoux.ai/.
 When testing a compatible local host, run `npm run verify:playground-command` to

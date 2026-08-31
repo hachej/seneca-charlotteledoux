@@ -7,71 +7,42 @@ async function readJson(relativePath) {
 }
 
 const manifest = await readJson('package.json')
-const definition = manifest.boring.agent
-const commandPath = 'commands/talk-with-charlotte.json'
-const command = await readJson(commandPath)
+const compatibilityDefinition = await readJson('agent.json')
+const frontPlugin = await readFile(new URL('../plugin/front/index.tsx', import.meta.url), 'utf8')
+const commandExtension = await readFile(new URL('../plugin/agent/index.ts', import.meta.url), 'utf8')
 
-function commandsForAgent(agentTypeId) {
-  return [command].filter((candidate) => candidate.agentTypeId === agentTypeId)
-}
+const bookingUrl = 'https://calendly.com/charlotteledoux-pro/30min-meeting'
 
-function executeAddressedCommand(agentTypeId, name) {
-  const addressed = commandsForAgent(agentTypeId).find((candidate) => candidate.name === name)
-  if (!addressed) {
-    const error = new Error('command not found for addressed agent')
-    error.code = 'AGENT_COMMAND_NOT_FOUND'
-    throw error
+test('the Charlotte package uses the existing Boring UI and Pi plugin entries', () => {
+  assert.equal(manifest.boring.front, 'plugin/front/index.tsx')
+  assert.deepEqual(manifest.pi.extensions, ['plugin/agent/index.ts'])
+  assert.equal(manifest.boring.agent.definitionId, 'charlotteledoux')
+  assert.equal(manifest.boring.agentCommandManifests, undefined)
+  for (const key of ['definitionId', 'version', 'label', 'description', 'instructionsRef']) {
+    assert.equal(compatibilityDefinition[key], manifest.boring.agent[key])
   }
-  return { effect: addressed.action }
-}
-
-test('both declarative inventories reference only /talk-with-charlotte', () => {
-  assert.deepEqual(manifest.boring.agentCommandManifests, [commandPath])
-  assert.deepEqual(manifest.seneca.commands, [commandPath])
-  assert.deepEqual(manifest.boring.agentCommandManifests, manifest.seneca.commands)
 })
 
-test('/talk-with-charlotte identity matches the authored Charlotte agent', () => {
-  assert.equal(command.agentTypeId, definition.definitionId)
-  assert.equal(command.agentTypeId, manifest.boring.agent.definitionId)
-  assert.equal(command.agentTypeId, 'charlotteledoux')
-  assert.equal(command.name, 'talk-with-charlotte')
-  assert.notEqual(command.name, 'chat-with-charlotte')
+test('/talk-with-charlotte is registered by Charlotte’s Pi extension', () => {
+  assert.match(commandExtension, /COMMAND_NAME = "talk-with-charlotte"/)
+  assert.match(commandExtension, /pi\.registerCommand\(COMMAND_NAME/)
+  assert.match(commandExtension, /openPanel\(/)
+  assert.match(commandExtension, /component: PANEL_ID/)
 })
 
-test('/talk-with-charlotte remains a protected declarative browser action', () => {
-  assert.deepEqual(command.action, {
-    type: 'open_workspace_panel',
-    url: 'https://calendly.com/charlotteledoux-pro/30min-meeting',
-    title: 'Talk with Charlotte',
-  })
+test('the Charlotte front plugin owns the Calendly panel', () => {
+  assert.match(frontPlugin, /id: "charlotteledoux"/)
+  assert.match(frontPlugin, /CHARLOTTE_CALENDLY_PANEL_ID = "charlotteledoux\.calendly"/)
+  assert.ok(frontPlugin.includes(bookingUrl))
+  assert.match(frontPlugin, /sandbox=/)
+  assert.match(frontPlugin, /referrerPolicy="no-referrer"/)
 })
 
-test('/talk-with-charlotte uses Charlotte’s official Calendly host over HTTPS', () => {
-  const url = new URL(command.action.url)
+test('the official Calendly target is credential-free HTTPS', () => {
+  const url = new URL(bookingUrl)
   assert.equal(url.protocol, 'https:')
   assert.equal(url.username, '')
   assert.equal(url.password, '')
   assert.equal(url.hostname, 'calendly.com')
   assert.equal(url.pathname, '/charlotteledoux-pro/30min-meeting')
-})
-
-test('the creator-owned addressed-command contract exposes the command only to Charlotte', () => {
-  assert.deepEqual(commandsForAgent('charlotteledoux').map(({ name }) => name), ['talk-with-charlotte'])
-  assert.deepEqual(commandsForAgent('default'), [])
-  assert.deepEqual(commandsForAgent('another-agent'), [])
-})
-
-test('the creator-owned addressed-command contract denies cross-agent execution', () => {
-  assert.deepEqual(executeAddressedCommand('charlotteledoux', 'talk-with-charlotte'), {
-    effect: command.action,
-  })
-  assert.throws(
-    () => executeAddressedCommand('another-agent', 'talk-with-charlotte'),
-    (error) => error.code === 'AGENT_COMMAND_NOT_FOUND',
-  )
-  assert.throws(
-    () => executeAddressedCommand('charlotteledoux', 'chat-with-charlotte'),
-    (error) => error.code === 'AGENT_COMMAND_NOT_FOUND',
-  )
 })
