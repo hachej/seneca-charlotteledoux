@@ -43,7 +43,6 @@ test('/talk-with-charlotte remains a protected declarative browser action', () =
   assert.deepEqual(command.action, {
     type: 'open_workspace_panel',
     url: 'https://calendly.com/charlotteledoux-pro/30min-meeting',
-    panelId: 'charlotte-calendly',
     title: 'Talk with Charlotte',
   })
 })

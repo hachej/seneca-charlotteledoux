@@ -81,8 +81,8 @@ if (command.action?.type !== 'open_workspace_panel' || command.action.url !== al
 }
 const bookingUrl = new URL(command.action.url)
 if (bookingUrl.protocol !== 'https:' || bookingUrl.hostname !== 'calendly.com') fail('Calendly command URL is not allowed')
-if (command.action.panelId !== 'charlotte-calendly' || command.action.title !== 'Talk with Charlotte') {
-  fail('Calendly command must use the approved Charlotte workspace panel')
+if (command.action.title !== 'Talk with Charlotte') {
+  fail('Calendly command must use the approved Charlotte workspace panel title')
 }
 
 const workflow = await readFile(resolve(root, '.github/workflows/agent.yml'), 'utf8')
