@@ -58,7 +58,16 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p dist/bundle
-          cp -a agent.json instructions.md package.json knowledge skills commands evals dist/bundle/
+          # The package manifest is the authored agent manifest. `agent.json`
+          # was intentionally removed as a duplicate, so do not resurrect it
+          # here. Keep optional runtime/plugin surfaces in the immutable bundle
+          # when they are present.
+          cp -a instructions.md package.json knowledge skills evals dist/bundle/
+          for surface in .pi commands plugin; do
+            if [[ -e "$surface" ]]; then
+              cp -a "$surface" dist/bundle/
+            fi
+          done
           cat > dist/bundle/release.json <<JSON
           {
             "schemaVersion": 1,
