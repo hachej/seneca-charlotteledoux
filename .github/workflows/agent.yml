@@ -58,11 +58,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p dist/bundle
-          # The package manifest is the authored agent manifest. `agent.json`
-          # was intentionally removed as a duplicate, so do not resurrect it
-          # here. Keep optional runtime/plugin surfaces in the immutable bundle
-          # when they are present.
-          cp -a instructions.md package.json knowledge skills evals dist/bundle/
+          # Seneca validates the package-shaped persona and its A1 compatibility
+          # manifest together. Keep both in the immutable bundle so its deployed
+          # runtime can reject any identity drift.
+          cp -a agent.json instructions.md package.json knowledge skills evals dist/bundle/
           for surface in .pi commands plugin; do
             if [[ -e "$surface" ]]; then
               cp -a "$surface" dist/bundle/
