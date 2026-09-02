@@ -1,7 +1,7 @@
 {
   "name": "@seneca/agent-charlotteledoux",
   "private": true,
-  "version": "1.2.2",
+  "version": "1.2.3",
   "type": "module",
   "scripts": {
     "validate": "node scripts/validate.mjs",
@@ -22,7 +22,7 @@
     "id": "charlotteledoux",
     "agent": {
       "definitionId": "charlotteledoux",
-      "version": "1.2.2",
+      "version": "1.2.3",
       "label": "Charlotte Ledoux",
       "description": "Data & AI Governance knowledge agent grounded in Charlotte Ledoux's public writing.",
       "instructionsRef": "instructions.md"

@@ -26,8 +26,10 @@ test('the Charlotte package uses the existing Boring UI and Pi plugin entries', 
 test('/talk-with-charlotte is registered by Charlotte’s Pi extension', () => {
   assert.match(commandExtension, /COMMAND_NAME = "talk-with-charlotte"/)
   assert.match(commandExtension, /pi\.registerCommand\(COMMAND_NAME/)
-  assert.match(commandExtension, /openPanel\(/)
+  assert.match(commandExtension, /Symbol\.for\("@hachej\/boring-workspace:active-ui-bridge"\)/)
+  assert.match(commandExtension, /kind: "openPanel"/)
   assert.match(commandExtension, /component: PANEL_ID/)
+  assert.doesNotMatch(commandExtension, /^import\s/m)
 })
 
 test('the Charlotte front plugin owns the Calendly panel', () => {
